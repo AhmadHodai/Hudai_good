@@ -1,0 +1,205 @@
+<html><head><base href="https://www.webcine.com"/>
+<meta charset="UTF-8">
+<title>WebCine Interactive Bot</title>
+<style>
+:root {
+  --primary-color: #2196F3;
+  --accent-color: #FF4081;
+  --level-colors: #4CAF50, #8BC34A, #CDDC39, #FFEB3B, #FFC107;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #1a1a1a;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.container {
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+}
+
+.bot-avatar {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  margin: 20px auto;
+  cursor: pointer;
+  transition: transform 0.1s;
+}
+
+.bot-avatar:active {
+  transform: scale(0.95);
+}
+
+.money-display {
+  font-size: 24px;
+  margin: 20px 0;
+  color: #4CAF50;
+}
+
+.level-display {
+  font-size: 18px;
+  margin: 10px 0;
+  color: var(--primary-color);
+}
+
+.tasks-container, .boosts-container {
+  background: #2d2d2d;
+  border-radius: 10px;
+  padding: 15px;
+  margin: 10px 0;
+}
+
+.task-item, .boost-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px;
+  background: #3d3d3d;
+  border-radius: 5px;
+  margin: 5px 0;
+}
+
+.button {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.button:hover {
+  background: #1976D2;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Rashidi Ahmad Hodiy Kombat</h1>
+  
+  <div class="bot-avatar" id="botAvatar">
+    <svg viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="95" fill="var(--primary-color)" class="avatar-circle"/>
+      <path d="M65,80 Q100,120 135,80" stroke="white" fill="none" stroke-width="3"/>
+      <circle cx="70" cy="65" r="10" fill="white"/>
+      <circle cx="130" cy="65" r="10" fill="white"/>
+      <circle cx="70" cy="65" r="5" fill="black"/>
+      <circle cx="130" cy="65" r="5" fill="black"/>
+      <path d="M90,100 Q100,110 110,100" fill="pink"/>
+    </svg>
+  </div>
+
+  <div class="money-display" id="moneyDisplay">
+    💰 Money: $0
+  </div>
+
+  <div class="level-display" id="levelDisplay">
+    Level: 1
+  </div>
+
+  <div class="tasks-container">
+    <h2>Tasks</h2>
+    <div class="task-item">
+      <span>Click 50 times</span>
+      <button class="button" onclick="checkTask(0)">Claim</button>
+    </div>
+    <div class="task-item">
+      <span>Reach Level 2</span>
+      <button class="button" onclick="checkTask(1)">Claim</button>
+    </div>
+  </div>
+
+  <div class="boosts-container">
+    <h2>Boosts</h2>
+    <div class="boost-item">
+      <span>2x Clicks (30s)</span>
+      <button class="button" onclick="activateBoost(2)">$100</button>
+    </div>
+    <div class="boost-item">
+      <span>5x Clicks (10s)</span>
+      <button class="button" onclick="activateBoost(5)">$250</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const game = {
+  money: 0,
+  level: 1,
+  clicks: 0,
+  multiplier: 1,
+  tasks: [
+    { required: 50, completed: false },
+    { required: 2, completed: false }
+  ]
+};
+
+document.getElementById('botAvatar').addEventListener('click', () => {
+  game.clicks++;
+  game.money += 1 * game.multiplier;
+  updateDisplay();
+  
+  if (game.clicks % 100 === 0) {
+    levelUp();
+  }
+});
+
+function updateDisplay() {
+  document.getElementById('moneyDisplay').textContent = `💰 Money: $${game.money}`;
+  document.getElementById('levelDisplay').textContent = `Level: ${game.level}`;
+}
+
+function levelUp() {
+  game.level++;
+  const colors = ['#4CAF50', '#8BC34A', '#CDDC39', '#FFEB3B', '#FFC107'];
+  const circle = document.querySelector('.avatar-circle');
+  circle.style.fill = colors[(game.level - 1) % colors.length];
+  updateDisplay();
+}
+
+function checkTask(taskIndex) {
+  const task = game.tasks[taskIndex];
+  if (!task.completed) {
+    if (taskIndex === 0 && game.clicks >= task.required) {
+      task.completed = true;
+      game.money += 100;
+    } else if (taskIndex === 1 && game.level >= task.required) {
+      task.completed = true;
+      game.money += 200;
+    }
+    updateDisplay();
+  }
+}
+
+function activateBoost(multiplier) {
+  const cost = multiplier === 2 ? 100 : 250;
+  if (game.money >= cost) {
+    game.money -= cost;
+    game.multiplier = multiplier;
+    updateDisplay();
+    
+    setTimeout(() => {
+      game.multiplier = 1;
+      updateDisplay();
+    }, multiplier === 2 ? 30000 : 10000);
+  }
+}
+
+updateDisplay();
+</script>
+</body></html>
